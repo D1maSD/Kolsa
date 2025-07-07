@@ -67,7 +67,7 @@ extension ProductListViewController: UITableViewDelegate, UITableViewDataSource 
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "ProductCell", for: indexPath) as? ProductCell else {
-            assertionFailure("❌ Failed to dequeue ProductCell. Check identifier or registration.")
+            assertionFailure("Failed to dequeue ProductCell. Check identifier or registration.")
             return UITableViewCell()
         }
         
