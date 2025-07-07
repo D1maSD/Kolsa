@@ -23,7 +23,7 @@ final class ProductListViewModel {
         case .price:
             sortedProducts = products.sorted(by: { $0.price < $1.price })
         case .name:
-            sortedProducts = products.sorted(by: { $0.name < $1.name })
+            sortedProducts = products.sorted { $0.name.count < $1.name.count }
         }
     }
 
