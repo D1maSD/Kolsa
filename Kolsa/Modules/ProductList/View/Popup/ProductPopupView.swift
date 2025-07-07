@@ -43,7 +43,6 @@ final class ProductPopupView: UIView {
         descLabel.numberOfLines = 0
         descLabel.textAlignment = .center
 
-        // stack для цены и рубля — горизонтальный
         priceStack.axis = .horizontal
         priceStack.spacing = 2
         priceStack.alignment = .center
@@ -51,7 +50,6 @@ final class ProductPopupView: UIView {
         priceStack.addArrangedSubview(priceLabel)
         priceStack.addArrangedSubview(rubleLabel)
 
-        // основной вертикальный стек
         stack.axis = .vertical
         stack.spacing = 12
         stack.alignment = .center
