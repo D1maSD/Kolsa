@@ -5,11 +5,14 @@
 ////  Created by Dima Melnik on 7/5/25.
 ////
 import UIKit
+import SnapKit
 
 final class ProductPopupView: UIView {
     private let titleLabel = UILabel()
     private let priceLabel = UILabel()
+    private let rubleLabel = UILabel()
     private let descLabel = UILabel()
+    private let priceStack = UIStackView()
     private let stack = UIStackView()
 
     init(product: Product) {
@@ -30,38 +33,50 @@ final class ProductPopupView: UIView {
         titleLabel.numberOfLines = 0
 
         priceLabel.font = .boldSystemFont(ofSize: 16)
-        priceLabel.textColor = .gray
-        priceLabel.textAlignment = .center
+        priceLabel.textColor = .black
+
+        rubleLabel.font = .boldSystemFont(ofSize: 16)
+        rubleLabel.textColor = .gray
 
         descLabel.font = .systemFont(ofSize: 15)
         descLabel.textColor = .darkGray
         descLabel.numberOfLines = 0
         descLabel.textAlignment = .center
 
+        // stack для цены и рубля — горизонтальный
+        priceStack.axis = .horizontal
+        priceStack.spacing = 2
+        priceStack.alignment = .center
+        priceStack.distribution = .fill
+        priceStack.addArrangedSubview(priceLabel)
+        priceStack.addArrangedSubview(rubleLabel)
+
+        // основной вертикальный стек
         stack.axis = .vertical
         stack.spacing = 12
-        stack.alignment = .fill
+        stack.alignment = .center
         stack.distribution = .fill
-        stack.translatesAutoresizingMaskIntoConstraints = false
 
         stack.addArrangedSubview(titleLabel)
-        stack.addArrangedSubview(priceLabel)
+        stack.addArrangedSubview(priceStack)
         stack.addArrangedSubview(descLabel)
+
         addSubview(stack)
     }
 
     private func setupConstraints() {
-        NSLayoutConstraint.activate([
-            stack.topAnchor.constraint(equalTo: topAnchor, constant: 20),
-            stack.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
-            stack.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
-            stack.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -20)
-        ])
+        stack.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(20)
+            make.leading.equalToSuperview().offset(16)
+            make.trailing.equalToSuperview().inset(16)
+            make.bottom.equalToSuperview().inset(20)
+        }
     }
 
     private func configure(with product: Product) {
         titleLabel.text = product.name
-        priceLabel.text = String(format: "%.2f ₽", product.price)
+        priceLabel.text = String(format: "%.2f", product.price)
+        rubleLabel.text = "₽"
         descLabel.text = product.description
     }
 

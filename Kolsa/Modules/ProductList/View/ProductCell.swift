@@ -6,6 +6,7 @@
 ////
 //
 import UIKit
+import SnapKit
 
 final class ProductCell: UITableViewCell {
     let nameLabel = UILabel()
@@ -13,7 +14,7 @@ final class ProductCell: UITableViewCell {
     let sortButton = UIButton(type: .system)
     private let separator = UIView()
     let sortHighlightView = UIView()
-    private var highlightLeadingConstraint: NSLayoutConstraint?
+    private var highlightLeadingConstraint: Constraint?
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -31,29 +32,23 @@ final class ProductCell: UITableViewCell {
         nameLabel.numberOfLines = 0
         nameLabel.font = .systemFont(ofSize: 17)
         nameLabel.textColor = .black
-        nameLabel.translatesAutoresizingMaskIntoConstraints = false
 
         priceLabel.font = .systemFont(ofSize: 17)
-        priceLabel.textColor = .gray
         priceLabel.textAlignment = .right
         priceLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
-        priceLabel.translatesAutoresizingMaskIntoConstraints = false
 
         sortButton.setTitleColor(.systemBlue, for: .normal)
         sortButton.titleLabel?.font = .boldSystemFont(ofSize: 15)
         sortButton.backgroundColor = UIColor(white: 0.94, alpha: 1)
         sortButton.layer.cornerRadius = 8
         sortButton.clipsToBounds = true
-        sortButton.translatesAutoresizingMaskIntoConstraints = false
         sortButton.contentEdgeInsets = UIEdgeInsets(top: 6, left: 15, bottom: 6, right: 15)
         sortButton.isHidden = true
 
         separator.backgroundColor = UIColor(white: 0.9, alpha: 1.0)
-        separator.translatesAutoresizingMaskIntoConstraints = false
 
         sortHighlightView.backgroundColor = UIColor.systemBlue.withAlphaComponent(0.2)
         sortHighlightView.layer.cornerRadius = 5
-        sortHighlightView.translatesAutoresizingMaskIntoConstraints = false
         sortHighlightView.isHidden = true
 
         contentView.addSubview(nameLabel)
@@ -64,26 +59,31 @@ final class ProductCell: UITableViewCell {
     }
 
     private func setupConstraints() {
-        NSLayoutConstraint.activate([
-            nameLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 12),
-            nameLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            nameLabel.trailingAnchor.constraint(lessThanOrEqualTo: priceLabel.leadingAnchor, constant: -8),
+        nameLabel.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(12)
+            make.leading.equalToSuperview().offset(16)
+            make.trailing.lessThanOrEqualTo(priceLabel.snp.leading).offset(-8)
+            make.bottom.lessThanOrEqualToSuperview().offset(-10)
+        }
 
-            priceLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10),
-            priceLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-            priceLabel.widthAnchor.constraint(lessThanOrEqualToConstant: 100),
+        priceLabel.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(10)
+            make.trailing.equalToSuperview().offset(-16)
+            make.width.lessThanOrEqualTo(100)
+            make.bottom.lessThanOrEqualToSuperview().offset(-10)
+        }
 
-            sortButton.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
-            sortButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+        sortButton.snp.makeConstraints { make in
+            make.centerY.equalToSuperview()
+            make.trailing.equalToSuperview().offset(-16)
+        }
 
-            separator.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            separator.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-            separator.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
-            separator.heightAnchor.constraint(equalToConstant: 0.5),
-
-            nameLabel.bottomAnchor.constraint(lessThanOrEqualTo: contentView.bottomAnchor, constant: -10),
-            priceLabel.bottomAnchor.constraint(lessThanOrEqualTo: contentView.bottomAnchor, constant: -10)
-        ])
+        separator.snp.makeConstraints { make in
+            make.leading.equalToSuperview().offset(16)
+            make.trailing.equalToSuperview().offset(-16)
+            make.bottom.equalToSuperview()
+            make.height.equalTo(0.5)
+        }
     }
 
     func configure(with product: Product) {
@@ -92,11 +92,16 @@ final class ProductCell: UITableViewCell {
         nameLabel.textColor = .black
         nameLabel.font = .systemFont(ofSize: 17)
         separator.isHidden = false
-        priceLabel.text = String(format: "%.2f ₽", product.price)
-        priceLabel.textColor = .gray
-        priceLabel.font = .systemFont(ofSize: 17)
-        sortHighlightView.isHidden = true
         sortButton.isHidden = true
+        sortHighlightView.isHidden = true
+
+        // Число чёрным, ₽ серым
+        let formatted = NSMutableAttributedString(
+            string: String(format: "%.2f", product.price),
+            attributes: [.foregroundColor: UIColor.black]
+        )
+        formatted.append(NSAttributedString(string: " ₽", attributes: [.foregroundColor: UIColor.gray]))
+        priceLabel.attributedText = formatted
     }
 
     func configureAsSortToggle(title: String, target: Any?, action: Selector) {
@@ -116,28 +121,24 @@ final class ProductCell: UITableViewCell {
         separator.isHidden = true
 
         let icon = UIImageView(image: UIImage(named: "filter"))
-        icon.translatesAutoresizingMaskIntoConstraints = false
         icon.contentMode = .scaleAspectFit
-
         sortButton.addSubview(icon)
 
-        NSLayoutConstraint.activate([
-            icon.widthAnchor.constraint(equalToConstant: 15),
-            icon.heightAnchor.constraint(equalToConstant: 15),
-            icon.centerYAnchor.constraint(equalTo: sortButton.centerYAnchor),
-            icon.trailingAnchor.constraint(equalTo: sortButton.trailingAnchor, constant: -10)
-        ])
+        icon.snp.makeConstraints { make in
+            make.width.height.equalTo(15)
+            make.centerY.equalToSuperview()
+            make.trailing.equalToSuperview().inset(10)
+        }
 
         let titleWidth = (title as NSString).size(withAttributes: [.font: sortButton.titleLabel?.font ?? UIFont.systemFont(ofSize: 15)]).width
         let finalWidth = titleWidth + 30 + 20
 
-        sortButton.constraints.forEach {
-            if $0.firstAttribute == .width {
-                sortButton.removeConstraint($0)
-            }
+        sortButton.snp.remakeConstraints { make in
+            make.centerY.equalToSuperview()
+            make.trailing.equalToSuperview().offset(-16)
+            make.width.equalTo(finalWidth)
         }
 
-        sortButton.widthAnchor.constraint(equalToConstant: finalWidth).isActive = true
         sortHighlightView.isHidden = true
     }
 
@@ -153,23 +154,16 @@ final class ProductCell: UITableViewCell {
 
         sortButton.isHidden = true
         separator.isHidden = false
-
         sortHighlightView.isHidden = false
 
         let targetLabel = (selectedSort == .name) ? nameLabel : priceLabel
 
-        highlightLeadingConstraint?.isActive = false
-
-        highlightLeadingConstraint = sortHighlightView.leadingAnchor.constraint(equalTo: targetLabel.leadingAnchor, constant: -4)
-
-        NSLayoutConstraint.deactivate(sortHighlightView.constraints)
-
-        NSLayoutConstraint.activate([
-            sortHighlightView.topAnchor.constraint(equalTo: targetLabel.topAnchor, constant: -2),
-            sortHighlightView.heightAnchor.constraint(equalTo: targetLabel.heightAnchor, constant: 4),
-            sortHighlightView.widthAnchor.constraint(equalTo: targetLabel.widthAnchor, constant: 8),
-            highlightLeadingConstraint!
-        ])
+        sortHighlightView.snp.remakeConstraints { make in
+            make.top.equalTo(targetLabel).offset(-2)
+            make.height.equalTo(targetLabel).offset(4)
+            make.width.equalTo(targetLabel).offset(8)
+            make.leading.equalTo(targetLabel).offset(-4)
+        }
 
         layoutIfNeeded()
 
